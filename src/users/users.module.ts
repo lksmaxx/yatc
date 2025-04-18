@@ -11,5 +11,6 @@ import { User } from './user.entity';
 
     controllers: [UsersController],
     providers: [UsersService],
+    exports: [UsersService,TypeOrmModule],
 })
 export class UsersModule { }
