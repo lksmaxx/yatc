@@ -1,10 +1,10 @@
 {
     "type": "postgres",
-    "host": "localhost",
-    "port": 5432,
-    "username": "postgres",
-    "password": "postgres",
-    "database": "task_manager",
+    "host": "${DB_HOST}",
+    "port": "${DB_PORT}",
+    "username": "${DB_USER}",
+    "password": "${DB_PASSWORD}",
+    "database": "${DB_NAME}",
     "entities": [
         "dist/**/*.entity{.ts,.js}"
     ],

@@ -1,31 +1,22 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15
-    container_name: postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: task_manager
-    ports:
-      - '5432:5432'
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
   app:
     build: .
     container_name: yatc-app
     ports:
       - '3000:3000'
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: task_manager
-    depends_on:
-      - db
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      NODE_ENV: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run start:dev
 
 volumes:
   db_data:
