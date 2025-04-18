@@ -2,7 +2,12 @@ services:
   app:
     environment:
       NODE_ENV: development
+      # Adicionando a variável de ambiente para o container acessar o banco de dados no host
+      DB_HOST: host.docker.internal
+      DB_PORT: ${DB_PORT:-5432}
     volumes:
       - .:/app
       - /app/node_modules
     command: npm run start:dev
+    ports:
+      - '3000:3000'

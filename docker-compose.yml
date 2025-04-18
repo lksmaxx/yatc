@@ -1,18 +1,19 @@
 services:
   app:
     build: .
+    restart: unless-stopped
     container_name: yatc-app
     ports:
       - '3000:3000'
     environment:
-      # Usando variáveis de ambiente diretamente - funcionam em qualquer ambiente
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      # Estas variáveis podem ser ajustadas conforme seu ambiente
+      DB_HOST: ${DB_HOST:-localhost}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-yatc}
       NODE_ENV: ${NODE_ENV:-development}
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start:dev
+    command: npm run start

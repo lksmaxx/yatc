@@ -12,4 +12,3 @@ RUN npm run build
 RUN npm install -g nodemon
 
 EXPOSE 3000
-CMD ["nodemon", "dist/main"]
