@@ -2,12 +2,19 @@ services:
   app:
     environment:
       NODE_ENV: development
-      # Adicionando a variável de ambiente para o container acessar o banco de dados no host
+      # Configuração do host do banco de dados
       DB_HOST: host.docker.internal
       DB_PORT: ${DB_PORT:-5432}
+      # Configuração muito mais agressiva do polling
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+      CHOKIDAR_POLL_INTERVAL: "300"
+      WATCHPACK_POLLING: "true"
+      WEBPACK_WATCH_POLL: "300"
+      NEST_DEBUG: "true"
     volumes:
-      - .:/app
+      - ./:/app:delegated
       - /app/node_modules
-    command: npm run start:dev
+    command: npm run start:dev -- --preserveWatchOutput
     ports:
       - '3000:3000'
