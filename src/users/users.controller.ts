@@ -1,5 +1,7 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { createUserSchema, updateUserSchema, CreateUserDto, UpdateUserDto } from './user.schemas';
+import { ZodValidator } from '../common/decorators/zod-validator.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -16,12 +18,15 @@ export class UsersController {
     }
 
     @Post()
-    create(@Body() createUserDto: { name: string; email: string }) {
+    create(@Body(new ZodValidator(createUserSchema)) createUserDto: CreateUserDto) {
         return this.usersService.create(createUserDto);
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: Partial<{ name: string; email: string }>) {
+    update(
+        @Param('id') id: string, 
+        @Body(new ZodValidator(updateUserSchema)) updateUserDto: UpdateUserDto
+    ) {
         return this.usersService.update(id, updateUserDto);
     }
 
