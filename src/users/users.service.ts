@@ -25,20 +25,17 @@ export class UsersService {
     return user; // Return the found user
   }
 
-  async findOneById(id: string): Promise<User> {
+  async findOneById(id: string): Promise<User | null> {
     const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`); // Throw an exception if user not found
-    }
-    return user; // Pode retornar null se não encontrado
+    return user; // Retorna null se não encontrado
   }
 
-  async findOneByEmail(email: string): Promise<User> {
-    const found = await this.userRepository.findOne({ where: { email } });
-    if (!found) {
-      throw new NotFoundException(`User with email ${email} not found`); // Throw an exception if user not found
-    }
-    return found; // Return the found user
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { email },
+      select: ['id', 'email', 'name', 'password'], // Incluindo senha explicitamente
+    });
+    // Retorna null se não encontrado, sem lançar exceção
   }
 
   create(payload: CreateUserDto): Promise<User> {
