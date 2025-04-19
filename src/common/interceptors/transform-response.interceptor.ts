@@ -1,4 +1,10 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+  HttpStatus,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -6,7 +12,7 @@ import { map } from 'rxjs/operators';
 export class TransformResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map(data => {
+      map((data) => {
         const response = context.switchToHttp().getResponse();
         const statusCode = response.statusCode;
 
@@ -14,7 +20,11 @@ export class TransformResponseInterceptor implements NestInterceptor {
         const isSuccessResponse = statusCode >= 200 && statusCode < 300;
 
         // Só aplicamos a transformação em respostas de sucesso
-        if (isSuccessResponse && data === undefined && statusCode !== HttpStatus.NO_CONTENT) {
+        if (
+          isSuccessResponse &&
+          data === undefined &&
+          statusCode !== HttpStatus.NO_CONTENT
+        ) {
           return { success: true };
         }
 

@@ -1,4 +1,10 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { QueryFailedError, EntityNotFoundError } from 'typeorm';
@@ -9,7 +15,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    
+
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let errors: any[] = [];
@@ -24,12 +30,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const exceptionResponseObj = exceptionResponse as any;
         message = exceptionResponseObj.message || message;
         code = this.getErrorCode(statusCode);
-        
+
         if (exceptionResponseObj.errors) {
           errors = exceptionResponseObj.errors;
         } else if (Array.isArray(exceptionResponseObj.message)) {
-          errors = exceptionResponseObj.message.map(msg => ({
-            message: msg
+          errors = exceptionResponseObj.message.map((msg) => ({
+            message: msg,
           }));
           message = 'Validation failed';
         }
@@ -37,13 +43,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message = exceptionResponse;
         code = this.getErrorCode(statusCode);
       }
-    } 
+    }
     // Tratamento específico para erros de validação do Zod
     else if (exception instanceof ZodError) {
       statusCode = HttpStatus.BAD_REQUEST;
       message = 'Validation failed';
       code = 'VALIDATION_ERROR';
-      errors = exception.errors.map(err => ({
+      errors = exception.errors.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
@@ -53,7 +59,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode = HttpStatus.BAD_REQUEST;
       message = 'Database query failed';
       code = 'DATABASE_ERROR';
-      
+
       // Detecção de violações de chave única (duplicados)
       const errorDetail = (exception as any).detail;
       if (errorDetail && errorDetail.includes('already exists')) {
