@@ -1,11 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ObjectLiteral } from 'typeorm';
 import { TasksService } from './tasks.service';
 import { Task } from './task.entity';
+import { CreateTaskDto, UpdateTaskDto } from './task.schemas';
 
-type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+// Corrigida a definição do tipo MockRepository para satisfazer a restrição ObjectLiteral
+type MockRepository<T extends ObjectLiteral = any> = Partial<
+  Record<keyof Repository<T>, jest.Mock>
+>;
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -61,7 +65,7 @@ describe('TasksService', () => {
         },
       ];
 
-      taskRepository.find.mockResolvedValue(mockTasks);
+      taskRepository.find!.mockResolvedValue(mockTasks);
 
       const result = await tasksService.findAll();
 
@@ -84,7 +88,7 @@ describe('TasksService', () => {
         updatedAt: new Date(),
       };
 
-      taskRepository.findOne.mockResolvedValue(mockTask);
+      taskRepository.findOne!.mockResolvedValue(mockTask);
 
       const result = await tasksService.findOne('1');
 
@@ -95,7 +99,7 @@ describe('TasksService', () => {
     });
 
     it('should throw NotFoundException if task not found', async () => {
-      taskRepository.findOne.mockResolvedValue(null);
+      taskRepository.findOne!.mockResolvedValue(null);
 
       await expect(tasksService.findOne('1')).rejects.toThrow(
         NotFoundException,
@@ -108,7 +112,7 @@ describe('TasksService', () => {
 
   describe('create', () => {
     it('should create and return a new task', async () => {
-      const createTaskDto = {
+      const createTaskDto: CreateTaskDto = {
         title: 'New Task',
         description: 'New Description',
         status: 'pending',
@@ -122,8 +126,8 @@ describe('TasksService', () => {
         updatedAt: new Date(),
       };
 
-      taskRepository.create.mockReturnValue(mockTask);
-      taskRepository.save.mockResolvedValue(mockTask);
+      taskRepository.create!.mockReturnValue(mockTask);
+      taskRepository.save!.mockResolvedValue(mockTask);
 
       const result = await tasksService.create(createTaskDto);
 
@@ -136,7 +140,7 @@ describe('TasksService', () => {
   describe('update', () => {
     it('should update and return the task', async () => {
       const taskId = '1';
-      const updateTaskDto = {
+      const updateTaskDto: UpdateTaskDto = {
         title: 'Updated Task',
         status: 'in_progress',
       };
@@ -156,8 +160,8 @@ describe('TasksService', () => {
         ...updateTaskDto,
       };
 
-      taskRepository.findOne.mockResolvedValue(existingTask);
-      taskRepository.save.mockResolvedValue(updatedTask);
+      taskRepository.findOne!.mockResolvedValue(existingTask);
+      taskRepository.save!.mockResolvedValue(updatedTask);
 
       const result = await tasksService.update(taskId, updateTaskDto);
 
@@ -170,11 +174,11 @@ describe('TasksService', () => {
 
     it('should throw NotFoundException if task not found', async () => {
       const taskId = '1';
-      const updateTaskDto = {
+      const updateTaskDto: UpdateTaskDto = {
         title: 'Updated Task',
       };
 
-      taskRepository.findOne.mockResolvedValue(null);
+      taskRepository.findOne!.mockResolvedValue(null);
 
       await expect(tasksService.update(taskId, updateTaskDto)).rejects.toThrow(
         NotFoundException,
@@ -199,7 +203,7 @@ describe('TasksService', () => {
         updatedAt: new Date(),
       };
 
-      taskRepository.findOne.mockResolvedValue(mockTask);
+      taskRepository.findOne!.mockResolvedValue(mockTask);
 
       await tasksService.remove(taskId);
 
@@ -212,7 +216,7 @@ describe('TasksService', () => {
     it('should throw NotFoundException if task not found', async () => {
       const taskId = '1';
 
-      taskRepository.findOne.mockResolvedValue(null);
+      taskRepository.findOne!.mockResolvedValue(null);
 
       await expect(tasksService.remove(taskId)).rejects.toThrow(
         NotFoundException,
