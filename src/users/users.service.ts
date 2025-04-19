@@ -7,8 +7,8 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User) // Assuming User is an entity class
-    private readonly userRepository: Repository<User>, // Injecting the repository for User entity
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {
     // Initialize with some dummy data
   }
@@ -23,6 +23,22 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`); // Throw an exception if user not found
     }
     return user; // Return the found user
+  }
+
+  async findOneById(id: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`); // Throw an exception if user not found
+    }
+    return user; // Pode retornar null se não encontrado
+  }
+
+  async findOneByEmail(email: string): Promise<User> {
+    const found = await this.userRepository.findOne({ where: { email } });
+    if (!found) {
+      throw new NotFoundException(`User with email ${email} not found`); // Throw an exception if user not found
+    }
+    return found; // Return the found user
   }
 
   create(payload: CreateUserDto): Promise<User> {
