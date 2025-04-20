@@ -1,15 +1,18 @@
-import { List } from '../lists/list.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
+import { User } from '../users/user.entity';
+import { List } from '../lists/list.entity';
 
-@Entity('tasks')
-export class Task {
+@Entity('boards')
+export class Board {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -19,20 +22,19 @@ export class Task {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ length: 20, default: 'pending' })
-  status: string;
+  @Column({ nullable: false })
+  ownerId: string;
 
-  @Column({ type: 'timestamp', nullable: true })
-  dueDate: Date;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
+
+  @OneToMany(() => List, (list) => list.board, { cascade: true })
+  lists: List[];
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @OneToMany(() => List, (list) => list.tasks, {
-    cascade: true,
-  })
-  list: List[];
 }
