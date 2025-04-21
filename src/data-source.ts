@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import 'dotenv/config';
+import { join } from 'path';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -8,9 +9,16 @@ const AppDataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: ['dist/**/*.entity{.ts,.js}'],
+  // Carregamento automático de entidades usando glob patterns
+  entities: [
+    join(__dirname, '**', '*.entity.ts'),
+    join(__dirname, '**', '*.entity.js'),
+    join(__dirname, '..', 'src', '**', '*.entity.ts'),
+    join(__dirname, '..', 'dist', '**', '*.entity.js'),
+  ],
   migrations: ['src/migrations/*{.ts,.js}'],
   synchronize: false,
+  logging: true,
 });
 
 export default AppDataSource;

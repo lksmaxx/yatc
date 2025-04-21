@@ -1,8 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
-import { User } from '../src/users/user.entity';
-import { Task } from '../src/tasks/task.entity';
 
 // Carregando variáveis de ambiente
 dotenv.config({
@@ -17,7 +15,11 @@ export const testDataSourceOptions: DataSourceOptions = {
   username: process.env.TEST_DB_USER || 'postgres',
   password: process.env.TEST_DB_PASSWORD || 'postgres',
   database: process.env.TEST_DB_NAME || 'yatc_test',
-  entities: [User, Task], // Definindo explicitamente as entidades
+  // Carregamento automático de entidades usando glob patterns
+  entities: [
+    path.join(__dirname, '..', 'dist', '**', '*.entity.js'),
+    path.join(__dirname, '..', 'src', '**', '*.entity.ts'),
+  ],
   synchronize: true, // Cuidado: em produção deve ser false
   dropSchema: true, // Limpa o banco de dados antes dos testes
   logging: false,

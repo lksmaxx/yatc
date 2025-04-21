@@ -2,13 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as path from 'path';
-import { User } from '../src/users/user.entity';
-import { Task } from '../src/tasks/task.entity';
 import { AuthModule } from '../src/auth/auth.module';
 import { UsersModule } from '../src/users/users.module';
 import { TasksModule } from '../src/tasks/tasks.module';
+import { BoardsModule } from '../src/boards/boards.module';
+import { ListsModule } from '../src/lists/lists.module';
 import { AppController } from '../src/app.controller';
 import { AppService } from '../src/app.service';
+import { testDataSourceOptions } from './test-data-source';
 
 // Este módulo é criado especificamente para os testes E2E
 @Module({
@@ -18,19 +19,13 @@ import { AppService } from '../src/app.service';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.TEST_DB_HOST || 'localhost',
-      port: parseInt(process.env.TEST_DB_PORT ?? '5432', 10),
-      username: process.env.TEST_DB_USER || 'postgres',
-      password: process.env.TEST_DB_PASSWORD || 'postgres',
-      database: process.env.TEST_DB_NAME || 'yatc_test',
-      entities: [User, Task],
-      synchronize: true, // Recria o esquema do banco a cada execução
-      dropSchema: true, // Limpa o banco antes dos testes
-      logging: false,
+      ...testDataSourceOptions,
+      autoLoadEntities: true, // Carrega entidades automaticamente dos módulos importados
     }),
     UsersModule,
     TasksModule,
+    BoardsModule, // Importante importar para que as entidades sejam reconhecidas
+    ListsModule, // Importante importar para que as entidades sejam reconhecidas
     AuthModule,
   ],
   controllers: [AppController],
