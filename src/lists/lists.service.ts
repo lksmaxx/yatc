@@ -116,9 +116,7 @@ export class ListsService {
 
     // Update the position
     list.position = position;
-    await this.listsRepository.save(list);
-
-    return this.findOne(id, userId);
+    return this.listsRepository.save(list);
   }
 
   async remove(id: string, userId: string): Promise<void> {
