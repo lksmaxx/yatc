@@ -77,7 +77,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     // Log detalhado do erro para debug (apenas em ambiente de desenvolvimento)
     if (process.env.NODE_ENV !== 'production') {
       console.error('Exception:', exception);
-    } else {
+    } else if (process.env.NODE_ENV === 'production' && statusCode >= 500) {
       // Em produção, log mais limitado para evitar vazar dados sensíveis
       console.error(`[${code}] ${message} - ${request.method} ${request.url}`);
     }

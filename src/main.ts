@@ -6,6 +6,8 @@ import { TransformResponseInterceptor } from './common/interceptors/transform-re
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors();
+
   // Registrar o filtro de exceções globalmente
   app.useGlobalFilters(new HttpExceptionFilter());
 

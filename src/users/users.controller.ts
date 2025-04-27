@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -15,6 +16,9 @@ import {
   UpdateUserDto,
 } from './user.schemas';
 import { ZodValidator } from '../common/decorators/zod-validator.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { User } from './user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -23,6 +27,16 @@ export class UsersController {
   @Get()
   async findAll() {
     return this.usersService.findAll();
+  }
+
+  /**
+   * Endpoint para buscar o usuário logado
+   * @returns Dados do usuário autenticado
+   */
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@CurrentUser() user: User) {
+    return user;
   }
 
   @Get(':id')

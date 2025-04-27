@@ -18,7 +18,7 @@ export class AuthController {
    * @returns Token JWT e informações do usuário
    */
   @Post('login')
-  login(@Body() loginDto: LoginDto) {
+  login(@Body(new ZodValidator(LoginSchema)) loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
@@ -28,7 +28,7 @@ export class AuthController {
    * @returns Token JWT e informações do usuário criado
    */
   @Post('register')
-  register(@Body() registerDto: RegisterDto) {
+  register(@Body(new ZodValidator(RegisterSchema)) registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 }
