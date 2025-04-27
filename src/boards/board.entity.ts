@@ -22,9 +22,6 @@ export class Board {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ nullable: false })
-  ownerId: string;
-
   @ManyToOne(() => User)
   @JoinColumn({ name: 'ownerId' })
   owner: User;

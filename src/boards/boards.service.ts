@@ -6,7 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Board } from './board.entity';
-import { CreateBoardDto, UpdateBoardDto } from './board.schemas';
+import {
+  BoardSearchDto,
+  CreateBoardDto,
+  UpdateBoardDto,
+} from './board.schemas';
 
 @Injectable()
 export class BoardsService {
@@ -17,14 +21,48 @@ export class BoardsService {
 
   async findAllByUser(userId: string): Promise<Board[]> {
     return this.boardsRepository.find({
-      where: { ownerId: userId },
+      where: { owner: { id: userId } },
       order: { createdAt: 'DESC' },
+      relations: ['owner', 'lists'],
     });
+  }
+
+  async findAll(searchQuery: BoardSearchDto): Promise<Board[]> {
+    const resultQuery = this.boardsRepository.createQueryBuilder('board');
+
+    if (searchQuery.userId) {
+      resultQuery.andWhere('board.owner.id = :userId', {
+        userId: searchQuery.userId,
+      });
+    }
+
+    if (searchQuery.title) {
+      resultQuery.andWhere('board.title LIKE :title', {
+        title: `%${searchQuery.title}%`,
+      });
+    }
+
+    if (searchQuery.description) {
+      resultQuery.andWhere('board.description LIKE :description', {
+        description: `%${searchQuery.description}%`,
+      });
+    }
+
+    if (searchQuery.page) {
+      resultQuery.skip((searchQuery.page - 1) * (searchQuery.limit || 10));
+    }
+
+    if (searchQuery.limit) {
+      resultQuery.take(searchQuery.limit);
+    }
+
+    return resultQuery.getMany();
   }
 
   async findOne(id: string, userId: string): Promise<Board> {
     const board = await this.boardsRepository.findOne({
       where: { id },
+      relations: ['owner', 'lists'],
     });
 
     if (!board) {
@@ -32,7 +70,7 @@ export class BoardsService {
     }
 
     // Check if the user has access to this board
-    if (board.ownerId !== userId) {
+    if (board.owner.id !== userId) {
       throw new ForbiddenException('You do not have access to this board');
     }
 
@@ -42,7 +80,7 @@ export class BoardsService {
   async create(createBoardDto: CreateBoardDto, userId: string): Promise<Board> {
     const board = this.boardsRepository.create({
       ...createBoardDto,
-      ownerId: userId,
+      owner: { id: userId },
     });
 
     return this.boardsRepository.save(board);

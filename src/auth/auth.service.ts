@@ -33,6 +33,18 @@ export class AuthService {
   }
 
   /**
+   * Retorna os dados do usuário autenticado.
+   */
+
+  async me(user: any) {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
+  }
+
+  /**
    * Registra um novo usuário no sistema.
    */
   async register(registerDto: RegisterDto) {

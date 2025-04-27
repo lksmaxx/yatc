@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import {
@@ -14,6 +15,7 @@ import {
   UpdateBoardDto,
   CreateBoardSchema,
   UpdateBoardSchema,
+  BoardSearchDto,
 } from './board.schemas';
 import { ZodValidator } from '../common/decorators/zod-validator.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -26,8 +28,8 @@ export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
   @Get()
-  findAll(@CurrentUser() user: User) {
-    return this.boardsService.findAllByUser(user.id);
+  findAll(@CurrentUser() user: User, @Query() searchQuery: BoardSearchDto) {
+    return this.boardsService.findAll(searchQuery);
   }
 
   @Get(':id')
