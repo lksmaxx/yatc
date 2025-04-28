@@ -17,6 +17,7 @@ import {
   CreateListSchema,
   UpdateListSchema,
   MoveListSchema,
+  ListSearchDto,
 } from './list.schemas';
 import { ZodValidator } from '../common/decorators/zod-validator.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -29,8 +30,8 @@ export class ListsController {
   constructor(private readonly listsService: ListsService) {}
 
   @Get()
-  findAll(@Query('boardId') boardId: string, @CurrentUser() user: User) {
-    return this.listsService.findAll(boardId, user.id);
+  findAll(@Query() searchQuery: ListSearchDto, @CurrentUser() user: User) {
+    return this.listsService.findAll(searchQuery);
   }
 
   @Get(':id')

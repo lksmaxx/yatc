@@ -8,7 +8,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { List } from './list.entity';
 import { Board } from '../boards/board.entity';
-import { CreateListDto, UpdateListDto, MoveListDto } from './list.schemas';
+import {
+  CreateListDto,
+  UpdateListDto,
+  MoveListDto,
+  ListSearchDto,
+} from './list.schemas';
 
 @Injectable()
 export class ListsService {
@@ -19,31 +24,38 @@ export class ListsService {
     private boardsRepository: Repository<Board>,
   ) {}
 
-  async findAll(boardId: string, userId: string): Promise<List[]> {
-    // Verify board exists and user has access
-    const board = await this.boardsRepository.findOne({
-      where: { id: boardId },
-    });
+  async findAll(searchQuery: ListSearchDto): Promise<List[]> {
+    const resultQuery = this.listsRepository.createQueryBuilder('list');
 
-    if (!board) {
-      throw new NotFoundException(`Board with ID ${boardId} not found`);
+    if (searchQuery.boardId) {
+      resultQuery.andWhere('list.board.id = :boardId', {
+        boardId: searchQuery.boardId,
+      });
     }
 
-    if (board.ownerId !== userId) {
-      throw new ForbiddenException('You do not have access to this board');
+    if (searchQuery.title) {
+      resultQuery.andWhere('list.title LIKE :title', {
+        title: `%${searchQuery.title}%`,
+      });
     }
 
-    return this.listsRepository.find({
-      where: { board: { id: boardId } },
-      relations: ['board'],
-      order: { position: 'ASC' },
-    });
+    if (searchQuery.page) {
+      resultQuery.skip((searchQuery.page - 1) * (searchQuery.limit || 10));
+    }
+
+    if (searchQuery.limit) {
+      resultQuery.take(searchQuery.limit);
+    }
+
+    return resultQuery.getMany();
   }
 
   async findOne(id: string, userId: string): Promise<List> {
     const list = await this.listsRepository.findOne({
       where: { id },
-      relations: ['board'],
+      relations: {
+        board: { owner: true }, // Load the board and its owner
+      },
     });
 
     if (!list) {
@@ -51,7 +63,7 @@ export class ListsService {
     }
 
     // Check if the user has access to the board
-    if (list.board.ownerId !== userId) {
+    if (list.board.owner.id !== userId) {
       throw new ForbiddenException('You do not have access to this list');
     }
 
@@ -62,6 +74,7 @@ export class ListsService {
     // Verify board exists and user has access
     const board = await this.boardsRepository.findOne({
       where: { id: createListDto.boardId },
+      relations: ['owner'],
     });
 
     if (!board) {
@@ -70,7 +83,7 @@ export class ListsService {
       );
     }
 
-    if (board.ownerId !== userId) {
+    if (board.owner.id !== userId) {
       throw new ForbiddenException('You do not have access to this board');
     }
 

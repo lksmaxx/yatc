@@ -20,3 +20,13 @@ export const MoveListSchema = z.object({
 });
 
 export type MoveListDto = z.infer<typeof MoveListSchema>;
+
+export const ListSearchSchema = z.object({
+  title: z.string().optional(),
+  boardId: z.string().uuid().optional(),
+  page: z.number().optional(),
+  limit: z.number().optional(),
+  userId: z.string().optional(),
+});
+
+export type ListSearchDto = z.infer<typeof ListSearchSchema>;
