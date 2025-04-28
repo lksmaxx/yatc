@@ -21,11 +21,15 @@ import { ZodValidator } from '../common/decorators/zod-validator.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/user.entity';
+import { ListsService } from '../lists/lists.service';
 
 @Controller('boards')
 @UseGuards(JwtAuthGuard)
 export class BoardsController {
-  constructor(private readonly boardsService: BoardsService) {}
+  constructor(
+    private readonly boardsService: BoardsService,
+    private readonly listsService: ListsService,
+  ) {}
 
   @Get()
   findAll(@CurrentUser() user: User, @Query() searchQuery: BoardSearchDto) {
@@ -35,6 +39,11 @@ export class BoardsController {
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser() user: User) {
     return this.boardsService.findOne(id, user.id);
+  }
+
+  @Get(':id/lists')
+  findAllLists(@Param('id') id: string, @CurrentUser() user: User) {
+    return this.listsService.findAllByBoard(id, user.id);
   }
 
   @Post()

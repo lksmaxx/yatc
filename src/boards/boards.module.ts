@@ -3,10 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BoardsController } from './boards.controller';
 import { BoardsService } from './boards.service';
 import { Board } from './board.entity';
-import { List } from '../lists/list.entity';
+import { ListsModule } from '../lists/lists.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Board, List])],
+  imports: [TypeOrmModule.forFeature([Board]), ListsModule],
   controllers: [BoardsController],
   providers: [BoardsService],
   exports: [BoardsService],

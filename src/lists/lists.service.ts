@@ -24,8 +24,25 @@ export class ListsService {
     private boardsRepository: Repository<Board>,
   ) {}
 
+  async findAllByBoard(boardId: string, userId: string): Promise<List[]> {
+    const resultQuery = this.listsRepository
+      .createQueryBuilder('list')
+      .leftJoinAndSelect('list.tasks', 'task')
+      .leftJoin('list.board', 'board')
+      .leftJoin('board.owner', 'owner')
+
+      .where('list.board.id = :boardId', { boardId })
+      .andWhere('owner.id = :userId', { userId })
+      .orderBy('list.position', 'ASC');
+
+    return resultQuery.getMany();
+  }
+
   async findAll(searchQuery: ListSearchDto): Promise<List[]> {
-    const resultQuery = this.listsRepository.createQueryBuilder('list');
+    const resultQuery = this.listsRepository
+      .createQueryBuilder('list')
+      .leftJoinAndSelect('list.tasks', 'task')
+      .orderBy('list.title', 'ASC');
 
     if (searchQuery.boardId) {
       resultQuery.andWhere('list.board.id = :boardId', {
@@ -73,13 +90,13 @@ export class ListsService {
   async create(createListDto: CreateListDto, userId: string): Promise<List> {
     // Verify board exists and user has access
     const board = await this.boardsRepository.findOne({
-      where: { id: createListDto.boardId },
+      where: { id: createListDto.board.id },
       relations: ['owner'],
     });
 
     if (!board) {
       throw new NotFoundException(
-        `Board with ID ${createListDto.boardId} not found`,
+        `Board with ID ${createListDto.board.id} not found`,
       );
     }
 
@@ -89,7 +106,7 @@ export class ListsService {
 
     // Get the highest position for the current board to place the new list at the end
     const highestPositionList = await this.listsRepository.findOne({
-      where: { board: { id: createListDto.boardId } },
+      where: { board: { id: createListDto.board.id } },
       order: { position: 'DESC' },
     });
 

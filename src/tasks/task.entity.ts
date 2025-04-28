@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity('tasks')
@@ -31,8 +32,8 @@ export class Task {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => List, (list) => list.tasks, {
+  @ManyToOne(() => List, (list) => list.tasks, {
     cascade: true,
   })
-  list: List[];
+  list: List;
 }

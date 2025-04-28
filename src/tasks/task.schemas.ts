@@ -10,6 +10,9 @@ export const createTaskSchema = z.object({
     .enum(['pending', 'in_progress', 'completed', 'cancelled'])
     .default('pending'),
   dueDate: z.string().datetime().optional(),
+  list: z.object({
+    id: z.string().uuid('Invalid list ID'),
+  }),
 });
 
 export const updateTaskSchema = z.object({
