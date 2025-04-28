@@ -28,6 +28,12 @@ export const updateTaskSchema = z.object({
   dueDate: z.string().datetime().optional(),
 });
 
+export const moveTaskSchema = z.object({
+  listId: z.string().uuid().optional(),
+  position: z.number().int().nonnegative(),
+  priority: z.number().int().nonnegative().optional(),
+});
+
 export const taskSchema = createTaskSchema.extend({
   id: z.string(),
   createdAt: z.string().datetime(),
@@ -36,4 +42,5 @@ export const taskSchema = createTaskSchema.extend({
 
 export type CreateTaskDto = z.infer<typeof createTaskSchema>;
 export type UpdateTaskDto = z.infer<typeof updateTaskSchema>;
+export type MoveTaskDto = z.infer<typeof moveTaskSchema>;
 export type TaskDto = z.infer<typeof taskSchema>;

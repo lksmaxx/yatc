@@ -5,6 +5,9 @@ import { TasksModule } from './tasks/tasks.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { BoardsModule } from './boards/boards.module';
+import { ListsModule } from './lists/lists.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -31,8 +34,9 @@ import { BoardsModule } from './boards/boards.module';
     TasksModule,
     AuthModule,
     BoardsModule,
+    ListsModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
