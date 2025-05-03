@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { JwtService } from '@nestjs/jwt';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { TestModule } from './test.module';
 import { Board } from '../src/boards/board.entity';
 import { User } from '../src/users/user.entity';
@@ -36,7 +36,11 @@ describe('Boards (e2e)', () => {
       getRepositoryToken(User),
     );
 
+    const dataSource = moduleFixture.get<DataSource>(DataSource);
+
     await app.init();
+
+    await dataSource.runMigrations();
 
     // Criar usuário de teste
     testUser = userRepository.create({

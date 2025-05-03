@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository, ObjectLiteral } from 'typeorm';
 import { TasksService } from './tasks.service';
 import { Task } from './task.entity';
-import { CreateTaskDto, UpdateTaskDto } from './task.schemas';
+import { CreateTaskDto, MoveTaskDto, UpdateTaskDto } from './task.schemas';
 
 // Corrigida a definição do tipo MockRepository para satisfazer a restrição ObjectLiteral
 type MockRepository<T extends ObjectLiteral = any> = Partial<
@@ -24,18 +24,34 @@ describe('TasksService', () => {
   });
 
   beforeEach(async () => {
+    const taskRepositoryMock = {
+      find: jest.fn(),
+      findOne: jest.fn(),
+      create: jest.fn(),
+      save: jest.fn(),
+      remove: jest.fn(),
+      update: jest.fn(),
+      createQueryBuilder: jest.fn().mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue(undefined),
+      }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TasksService,
         {
           provide: getRepositoryToken(Task),
-          useFactory: mockTaskRepository,
+          useValue: taskRepositoryMock,
         },
       ],
     }).compile();
 
     tasksService = module.get<TasksService>(TasksService);
-    taskRepository = module.get<MockRepository<Task>>(getRepositoryToken(Task));
+    taskRepository = module.get(getRepositoryToken(Task));
   });
 
   afterEach(() => {
@@ -116,6 +132,7 @@ describe('TasksService', () => {
         title: 'New Task',
         description: 'New Description',
         status: 'pending',
+        list: { id: 'list1' },
       };
 
       const mockTask = {
@@ -197,13 +214,12 @@ describe('TasksService', () => {
         id: taskId,
         title: 'Task to remove',
         description: 'Description',
-        status: 'pending',
-        dueDate: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        position: 2,
+        list: { id: 'list1' },
       };
 
       taskRepository.findOne!.mockResolvedValue(mockTask);
+      taskRepository.remove!.mockResolvedValue(undefined);
 
       await tasksService.remove(taskId);
 
@@ -225,6 +241,123 @@ describe('TasksService', () => {
         where: { id: taskId },
       });
       expect(taskRepository.remove).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('moveTask', () => {
+    it('should not update positions when moving to the same position', async () => {
+      const taskId = '1';
+      const moveTaskDto: MoveTaskDto = {
+        listId: 'list1',
+        position: 1,
+      };
+
+      const mockTask = {
+        id: taskId,
+        position: 1,
+        list: { id: 'list1' },
+      };
+
+      taskRepository.findOne!.mockResolvedValue(mockTask);
+      taskRepository.createQueryBuilder!.mockReturnValue({
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue(undefined),
+      });
+      taskRepository.update!.mockResolvedValue(undefined);
+
+      await tasksService.moveTask(taskId, moveTaskDto);
+
+      expect(taskRepository.findOne).toHaveBeenCalledWith({
+        where: { id: taskId },
+      });
+      expect(taskRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('should move task to a higher position', async () => {
+      const taskId = '1';
+      const moveTaskDto: MoveTaskDto = {
+        listId: 'list1',
+        position: 3,
+      };
+
+      const mockTask = {
+        id: taskId,
+        position: 1,
+        list: { id: 'list1' },
+      };
+
+      const queryBuilderMock = {
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue(undefined),
+      };
+
+      taskRepository.findOne!.mockResolvedValue(mockTask);
+      taskRepository.createQueryBuilder!.mockReturnValue(queryBuilderMock);
+      taskRepository.update!.mockResolvedValue(undefined);
+
+      await tasksService.moveTask(taskId, moveTaskDto);
+
+      expect(taskRepository.findOne).toHaveBeenCalledWith({
+        where: { id: taskId },
+      });
+      expect(queryBuilderMock.update).toHaveBeenCalled();
+      expect(queryBuilderMock.set).toHaveBeenCalledWith({
+        position: expect.any(Function),
+      });
+      expect(queryBuilderMock.where).toHaveBeenCalledWith('list_id = :listId', {
+        listId: 'list1',
+      });
+      expect(taskRepository.update).toHaveBeenCalledWith(taskId, {
+        position: 3,
+      });
+    });
+
+    it('should move task to a lower position', async () => {
+      const taskId = '1';
+      const moveTaskDto: MoveTaskDto = {
+        listId: 'list1',
+        position: 1,
+      };
+
+      const mockTask = {
+        id: taskId,
+        position: 3,
+        list: { id: 'list1' },
+      };
+
+      const queryBuilderMock = {
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue(undefined),
+      };
+
+      taskRepository.findOne!.mockResolvedValue(mockTask);
+      taskRepository.createQueryBuilder!.mockReturnValue(queryBuilderMock);
+      taskRepository.update!.mockResolvedValue(undefined);
+
+      await tasksService.moveTask(taskId, moveTaskDto);
+
+      expect(taskRepository.findOne).toHaveBeenCalledWith({
+        where: { id: taskId },
+      });
+      expect(queryBuilderMock.update).toHaveBeenCalled();
+      expect(queryBuilderMock.set).toHaveBeenCalledWith({
+        position: expect.any(Function),
+      });
+      expect(queryBuilderMock.where).toHaveBeenCalledWith('list_id = :listId', {
+        listId: 'list1',
+      });
+      expect(taskRepository.update).toHaveBeenCalledWith(taskId, {
+        position: 1,
+      });
     });
   });
 });

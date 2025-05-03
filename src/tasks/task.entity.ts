@@ -42,4 +42,7 @@ export class Task {
   })
   @JoinColumn({ name: 'list_id' })
   list: List;
+
+  @Column({ type: 'int', default: 0 })
+  position: number;
 }
