@@ -29,17 +29,17 @@ export class CreateBoardsTable1745109918991 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'ownerId',
+            name: 'owner_id',
             type: 'uuid',
             isNullable: false,
           },
           {
-            name: 'createdAt',
+            name: 'created_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
           },
           {
-            name: 'updatedAt',
+            name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
           },
@@ -48,11 +48,10 @@ export class CreateBoardsTable1745109918991 implements MigrationInterface {
       true,
     );
 
-    // Create foreign key for ownerId referencing users.id
     await queryRunner.createForeignKey(
       'boards',
       new TableForeignKey({
-        columnNames: ['ownerId'],
+        columnNames: ['owner_id'],
         referencedColumnNames: ['id'],
         referencedTableName: 'users',
         onDelete: 'CASCADE',
@@ -64,7 +63,7 @@ export class CreateBoardsTable1745109918991 implements MigrationInterface {
     const table = await queryRunner.getTable('boards');
     if (table) {
       const foreignKey = table.foreignKeys.find(
-        (fk) => fk.columnNames.indexOf('ownerId') !== -1,
+        (fk) => fk.columnNames.indexOf('owner_id') !== -1,
       );
       if (foreignKey) {
         await queryRunner.dropForeignKey('boards', foreignKey);

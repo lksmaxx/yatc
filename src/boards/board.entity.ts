@@ -23,15 +23,19 @@ export class Board {
   description: string;
 
   @ManyToOne(() => User)
-  @JoinColumn({ name: 'ownerId' })
+  @JoinColumn({ name: 'owner_id' })
   owner: User;
 
   @OneToMany(() => List, (list) => list.board, { cascade: true })
   lists: List[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
   updatedAt: Date;
 }

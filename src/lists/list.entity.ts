@@ -23,15 +23,19 @@ export class List {
   position: number;
 
   @ManyToOne(() => Board, (board) => board.lists, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'boardId' })
+  @JoinColumn({ name: 'board_id' })
   board: Board;
 
   @OneToMany(() => Task, (task) => task.list)
   tasks: Task[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
   updatedAt: Date;
 }

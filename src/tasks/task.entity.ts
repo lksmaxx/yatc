@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('tasks')
@@ -23,17 +24,22 @@ export class Task {
   @Column({ length: 20, default: 'pending' })
   status: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'due_date' })
   dueDate: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    name: 'created_at',
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    name: 'updated_at',
+  })
   updatedAt: Date;
 
   @ManyToOne(() => List, (list) => list.tasks, {
     cascade: true,
   })
+  @JoinColumn({ name: 'list_id' })
   list: List;
 }

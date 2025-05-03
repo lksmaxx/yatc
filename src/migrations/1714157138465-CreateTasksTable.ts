@@ -31,17 +31,17 @@ export class CreateTasksTable1714157138465 implements MigrationInterface {
             default: "'pending'",
           },
           {
-            name: 'dueDate',
+            name: 'due_date',
             type: 'timestamp',
             isNullable: true,
           },
           {
-            name: 'createdAt',
+            name: 'created_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
           },
           {
-            name: 'updatedAt',
+            name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
           },

@@ -24,12 +24,12 @@ export class ListTable1745110551937 implements MigrationInterface {
             length: '100',
           },
           {
-            name: 'createdAt',
+            name: 'created_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
           },
           {
-            name: 'updatedAt',
+            name: 'updated_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
           },
@@ -39,7 +39,7 @@ export class ListTable1745110551937 implements MigrationInterface {
             default: 0,
           },
           {
-            name: 'boardId',
+            name: 'board_id',
             type: 'uuid',
             isNullable: false,
           },
@@ -49,7 +49,7 @@ export class ListTable1745110551937 implements MigrationInterface {
             name: 'FK_Board',
             referencedTableName: 'boards',
             referencedColumnNames: ['id'],
-            columnNames: ['boardId'],
+            columnNames: ['board_id'],
             onDelete: 'CASCADE',
           },
         ],
@@ -63,7 +63,7 @@ export class ListTable1745110551937 implements MigrationInterface {
     await queryRunner.addColumn(
       'tasks',
       new TableColumn({
-        name: 'listId',
+        name: 'list_id',
         type: 'uuid',
         isNullable: true,
       }),
@@ -72,7 +72,7 @@ export class ListTable1745110551937 implements MigrationInterface {
     await queryRunner.createForeignKey(
       'tasks',
       new TableForeignKey({
-        columnNames: ['listId'],
+        columnNames: ['list_id'],
         referencedColumnNames: ['id'],
         referencedTableName: 'lists',
         onDelete: 'CASCADE',
@@ -82,7 +82,7 @@ export class ListTable1745110551937 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropForeignKey('tasks', 'FK_List');
-    await queryRunner.dropColumn('tasks', 'listId');
+    await queryRunner.dropColumn('tasks', 'list_id');
     await queryRunner.dropTable('lists', true, true);
     await queryRunner.dropForeignKey('lists', 'FK_Board');
   }
