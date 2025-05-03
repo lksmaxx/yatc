@@ -57,9 +57,6 @@ describe('Boards (e2e)', () => {
   });
 
   afterAll(async () => {
-    // Limpar dados de teste
-    await boardRepository.delete({});
-    await userRepository.delete({ id: testUser.id });
     await app.close();
   });
 
@@ -73,12 +70,12 @@ describe('Boards (e2e)', () => {
         {
           title: 'Test Board 1',
           description: 'Description 1',
-          ownerId: testUser.id,
+          owner: testUser,
         },
         {
           title: 'Test Board 2',
           description: 'Description 2',
-          ownerId: testUser.id,
+          owner: testUser,
         },
       ]);
     });
@@ -92,7 +89,7 @@ describe('Boards (e2e)', () => {
           expect(Array.isArray(res.body)).toBe(true);
           expect(res.body.length).toBe(2);
           expect(res.body[0].title).toBeDefined();
-          expect(res.body[0].ownerId).toBe(testUser.id);
+          expect(res.body[0].owner.id).toBe(testUser.id);
         });
     });
 
@@ -116,7 +113,7 @@ describe('Boards (e2e)', () => {
         .expect((res) => {
           expect(res.body.title).toBe(createBoardDto.title);
           expect(res.body.description).toBe(createBoardDto.description);
-          expect(res.body.ownerId).toBe(testUser.id);
+          expect(res.body.owner.id).toBe(testUser.id);
           expect(res.body.id).toBeDefined();
         });
     });
@@ -138,7 +135,7 @@ describe('Boards (e2e)', () => {
       testBoard = await boardRepository.save({
         title: 'Get Board Test',
         description: 'Test retrieving a specific board',
-        ownerId: testUser.id,
+        owner: testUser,
       });
     });
 
@@ -150,7 +147,7 @@ describe('Boards (e2e)', () => {
         .expect((res) => {
           expect(res.body.id).toBe(testBoard.id);
           expect(res.body.title).toBe(testBoard.title);
-          expect(res.body.ownerId).toBe(testUser.id);
+          expect(res.body.owner.id).toBe(testUser.id);
         });
     });
 
@@ -170,7 +167,7 @@ describe('Boards (e2e)', () => {
       testBoard = await boardRepository.save({
         title: 'Update Board Test',
         description: 'Test updating a board',
-        ownerId: testUser.id,
+        owner: testUser,
       });
     });
 
@@ -189,7 +186,7 @@ describe('Boards (e2e)', () => {
           expect(res.body.id).toBe(testBoard.id);
           expect(res.body.title).toBe(updateBoardDto.title);
           expect(res.body.description).toBe(updateBoardDto.description);
-          expect(res.body.ownerId).toBe(testUser.id);
+          expect(res.body.owner.id).toBe(testUser.id);
         });
     });
 
@@ -210,7 +207,7 @@ describe('Boards (e2e)', () => {
       testBoard = await boardRepository.save({
         title: 'Delete Board Test',
         description: 'Test deleting a board',
-        ownerId: testUser.id,
+        owner: testUser,
       });
     });
 

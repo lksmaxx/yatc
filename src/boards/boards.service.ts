@@ -28,7 +28,10 @@ export class BoardsService {
   }
 
   async findAll(searchQuery: BoardSearchDto): Promise<Board[]> {
-    const resultQuery = this.boardsRepository.createQueryBuilder('board');
+    const resultQuery = this.boardsRepository
+      .createQueryBuilder('board')
+      .leftJoinAndSelect('board.owner', 'owner')
+      .leftJoinAndSelect('board.lists', 'lists');
 
     if (searchQuery.userId) {
       resultQuery.andWhere('board.owner.id = :userId', {
