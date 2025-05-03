@@ -144,7 +144,38 @@ export class ListsService {
     const list = await this.findOne(id, userId);
     const { position } = moveListDto;
 
-    // Update the position
+    if (list.position === position) {
+      return list;
+    }
+
+    if (list.position < position) {
+      await this.listsRepository
+        .createQueryBuilder('list')
+        .update()
+        .set({ position: () => 'position - 1' })
+        .where('board_id = :boardId', { boardId: list.board.id })
+        .andWhere('position <= :position', { position })
+        .andWhere('position > :prevPosition', { prevPosition: list.position })
+        .execute();
+    } else {
+      await this.listsRepository
+        .createQueryBuilder('list')
+        .update()
+        .set({ position: () => 'position + 1' })
+        .where('board_id = :boardId', { boardId: list.board.id })
+        .andWhere('position >= :position', { position })
+        .andWhere('position < :nextPosition', { nextPosition: list.position })
+        .execute();
+    }
+
+    const countLists = await this.listsRepository.count({
+      where: { board: { id: list.board.id } },
+    });
+
+    if (position >= countLists) {
+      throw new BadRequestException('Position is out of range');
+    }
+
     list.position = position;
     return this.listsRepository.save(list);
   }

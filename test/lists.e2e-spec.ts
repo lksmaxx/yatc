@@ -63,7 +63,7 @@ describe('Lists (e2e)', () => {
       owner: testUser,
     });
 
-    await boardRepository.save(testBoard);
+    testBoard = await boardRepository.save(testBoard);
 
     // Gerar token JWT
     const payload = { email: testUser.email, sub: testUser.id };
@@ -71,17 +71,12 @@ describe('Lists (e2e)', () => {
   });
 
   afterAll(async () => {
-    // Limpar dados de teste
-    await listRepository.delete({});
-    await boardRepository.delete({});
-    await userRepository.delete({ id: testUser.id });
     await app.close();
   });
 
   describe('GET /lists', () => {
     beforeEach(async () => {
       // Limpar listas antes de cada teste
-      await listRepository.delete({});
 
       // Criar algumas listas de teste
       await listRepository.save([
@@ -122,8 +117,7 @@ describe('Lists (e2e)', () => {
 
     it('should return 404 if board does not exist', () => {
       return request(app.getHttpServer())
-        .get('/lists')
-        .query({ boardId: '99999999-9999-9999-9999-999999999999' })
+        .get(`/lists/99999999-9999-9999-9999-999999999999`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(404);
     });
@@ -133,7 +127,7 @@ describe('Lists (e2e)', () => {
     it('should create a new list', () => {
       const createListDto = {
         title: 'New e2e List',
-        boardId: testBoard.id,
+        board: { id: testBoard.id },
       };
 
       return request(app.getHttpServer())
@@ -152,7 +146,7 @@ describe('Lists (e2e)', () => {
       return request(app.getHttpServer())
         .post('/lists')
         .set('Authorization', `Bearer ${authToken}`)
-        .send({ boardId: testBoard.id })
+        .send({ board: { id: testBoard.id } })
         .expect(400);
     });
 
@@ -243,11 +237,29 @@ describe('Lists (e2e)', () => {
         position: 0,
         board: testBoard,
       });
+
+      await listRepository.save({
+        title: 'Move List Test 2',
+        position: 1,
+        board: testBoard,
+      });
+
+      await listRepository.save({
+        title: 'Move List Test 3',
+        position: 2,
+        board: testBoard,
+      });
+
+      await listRepository.save({
+        title: 'Move List Test 4',
+        position: 3,
+        board: testBoard,
+      });
     });
 
     it('should move a list', () => {
       const moveListDto = {
-        position: 3,
+        position: 2,
       };
 
       return request(app.getHttpServer())
