@@ -16,13 +16,10 @@ export const testDataSourceOptions: DataSourceOptions = {
   password: process.env.TEST_DB_PASSWORD || 'postgres',
   database: process.env.TEST_DB_NAME || 'yatc_test',
   // Carregamento automático de entidades usando glob patterns
-  entities: [
-    path.join(__dirname, '..', 'dist', '**', '*.entity.js'),
-    path.join(__dirname, '..', 'src', '**', '*.entity.ts'),
-  ],
-  synchronize: true, // Cuidado: em produção deve ser false
+  entities: [path.join(__dirname, '..', 'src', '**', '*.entity.ts')],
+  migrations: [path.join(__dirname, '..', 'src', 'migrations', '*.ts')],
   dropSchema: true, // Limpa o banco de dados antes dos testes
-  logging: false,
+  logging: true,
 };
 
 // Cria a instância do DataSource

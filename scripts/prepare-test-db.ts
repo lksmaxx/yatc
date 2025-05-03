@@ -62,6 +62,11 @@ async function createTestDatabase() {
       '✅ Schema do banco de dados de teste inicializado com sucesso!',
     );
 
+    //run migrations
+    console.log('🔄 Executando migrações...');
+    await testDataSource.runMigrations();
+    console.log('✅ Migrações executadas com sucesso!');
+
     // Fecha a conexão
     await testDataSource.destroy();
   } catch (error) {

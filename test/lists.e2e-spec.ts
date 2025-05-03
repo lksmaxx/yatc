@@ -57,7 +57,7 @@ describe('Lists (e2e)', () => {
     testBoard = boardRepository.create({
       title: 'Test Board for Lists',
       description: 'Board for testing lists',
-      ownerId: testUser.id,
+      owner: testUser,
     });
 
     await boardRepository.save(testBoard);
