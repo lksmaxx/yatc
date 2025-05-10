@@ -130,6 +130,24 @@ export class TasksController {
     return this.tasksService.update(id, updateTaskDto);
   }
 
+  @Patch(':id/move')
+  @ApiOperation({
+    summary: 'Mover uma tarefa',
+    description: 'Mover uma tarefa para uma lista diferente',
+  })
+  @ApiParam({ name: 'id', description: 'ID da tarefa' })
+  @ApiResponse({ status: 200, description: 'Tarefa movida com sucesso' })
+  @ApiResponse({ status: 401, description: 'Não autorizado' })
+  @ApiResponse({ status: 404, description: 'Tarefa não encontrada' })
+  @ApiResponse({ status: 403, description: 'Acesso negado à tarefa' })
+  move(
+    @Param('id') id: string,
+    @Body(new ZodValidator(moveTaskSchema)) moveTaskDto: MoveTaskDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.tasksService.moveTask(id, moveTaskDto);
+  }
+
   @Delete(':id')
   @ApiOperation({
     summary: 'Excluir uma tarefa',
