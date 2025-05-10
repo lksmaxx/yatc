@@ -27,6 +27,7 @@ import { AppService } from './app.service';
           migrations: ['dist/migrations/*{.ts,.js}'],
           synchronize: false,
           autoLoadEntities: true,
+          logging: true,
         };
       },
     }),

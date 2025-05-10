@@ -35,14 +35,11 @@ export class TasksService {
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
     const task = this.taskRepository.create(createTaskDto);
+    const position = await this.taskRepository.count({
+      where: { list: { id: task.list.id } },
+    });
+    task.position = position;
     const savedTask = await this.taskRepository.save(task);
-    await this.taskRepository
-      .createQueryBuilder('task')
-      .update()
-      .set({ position: () => `position + 1` })
-      .where('list_id = :listId', { listId: task.list.id })
-      .andWhere('position >= :position', { position: task.position })
-      .execute();
     return savedTask;
   }
 

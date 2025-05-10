@@ -33,7 +33,8 @@ export class ListsService {
 
       .where('list.board.id = :boardId', { boardId })
       .andWhere('owner.id = :userId', { userId })
-      .orderBy('list.position', 'ASC');
+      .orderBy('list.position', 'ASC')
+      .addOrderBy('task.position', 'ASC');
 
     return resultQuery.getMany();
   }
@@ -42,7 +43,8 @@ export class ListsService {
     const resultQuery = this.listsRepository
       .createQueryBuilder('list')
       .leftJoinAndSelect('list.tasks', 'task')
-      .orderBy('list.title', 'ASC');
+      .orderBy('list.position', 'ASC')
+      .addOrderBy('task.position', 'ASC');
 
     if (searchQuery.boardId) {
       resultQuery.andWhere('list.board.id = :boardId', {
